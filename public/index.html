@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelChat.ai</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Crect x='4' y='4' width='6' height='24' fill='%23fff'/%3E%3Crect x='10' y='4' width='14' height='6' fill='%23fff'/%3E%3Crect x='10' y='10' width='10' height='6' fill='%23fff'/%3E%3Crect x='10' y='16' width='6' height='6' fill='%23fff'/%3E%3C/svg%3E">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* AUTH */
+        .auth-screen {
+            width: 360px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .auth-screen h1 {
+            font-size: 28px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+        .auth-screen h1 span { color: #888; }
+        .auth-screen .sub {
+            font-size: 11px;
+            color: #555;
+            letter-spacing: 2px;
+            margin-top: -16px;
+        }
+
+        .auth-box {
+            width: 100%;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 14px;
+            padding: 28px;
+        }
+
+        .auth-box .tab {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #222;
+        }
+
+        .auth-box .tab button {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .auth-box .tab button.active {
+            color: #fff;
+            border-bottom-color: #fff;
+        }
+
+        .auth-box input {
+            width: 100%;
+            padding: 12px 14px;
+            background: #0a0a0a;
+            border: 1px solid #222;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 12px;
+            transition: border 0.2s;
+        }
+
+        .auth-box input:focus {
+            border-color: #555;
+        }
+
+        .auth-box button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .auth-box button[type="submit"]:hover {
+            background: #ccc;
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+            color: #444;
+            font-size: 11px;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #222;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 11px;
+            background: transparent;
+            color: #ccc;
+            border: 1px solid #333;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .google-btn:hover {
+            background: #1a1a1a;
+            border-color: #555;
+            color: #fff;
+        }
+
+        .auth-box .auth-error {
+            color: #ff4444;
+            font-size: 12px;
+            margin-bottom: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        /* APP */
+        .app {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            display: none;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: #0a0a0a;
+            border-right: 1px solid #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 98;
+        }
+
+        .menu-btn {
+            display: none;
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 100;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #222;
+            border-radius: 10px;
+            background: #111;
+            color: #aaa;
+            font-size: 18px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn:hover { background: #1a1a1a; }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .sidebar-header .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .sidebar-header .top h2 {
+            font-size: 16px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .sidebar-header .top h2 span { color: #888; }
+
+        .sidebar-header .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background: #111;
+            border-radius: 8px;
+            border: 1px solid #1a1a1a;
+        }
+
+        .sidebar-header .user-info .name {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .sidebar-header .user-info .logout {
+            font-size: 11px;
+            color: #555;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: color 0.2s;
+        }
+
+        .sidebar-header .user-info .logout:hover {
+            color: #ff4444;
+        }
+
+        .new-chat-btn {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #222;
+            border-radius: 8px;
+            background: transparent;
+            color: #aaa;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+
+        .new-chat-btn:hover {
+            background: #111;
+            border-color: #444;
+            color: #fff;
+        }
+
+        .conv-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .conv-list::-webkit-scrollbar { width: 4px; }
+        .conv-list::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+        .conv-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+            margin-bottom: 2px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .conv-item:hover {
+            background: #111;
+        }
+
+        .conv-item.active {
+            background: #1a1a1a;
+        }
+
+        .conv-item .title {
+            font-size: 13px;
+            color: #ccc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .conv-item .del {
+            font-size: 14px;
+            color: #444;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+
+        .conv-item:hover .del {
+            opacity: 1;
+        }
+
+        .conv-item .del:hover {
+            color: #ff4444;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 860px;
+            margin: 0 auto;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .chat-area {
+            flex: 1;
+            padding: 24px 24px 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .chat-area::-webkit-scrollbar { width: 4px; }
+        .chat-area::-webkit-scrollbar-track { background: #000; }
+        .chat-area::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+        .message {
+            max-width: 78%;
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-size: 15px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            animation: fadeIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: #fff;
+            color: #000;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot {
+            background: transparent;
+            color: #e0e0e0;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            max-width: 90%;
+        }
+
+        .message.bot .bot-label {
+            font-size: 11px;
+            color: #555;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .message.bot code {
+            background: #1a1a1a;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .message.bot pre {
+            background: #0d0d0d;
+            border: 1px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            overflow-x: auto;
+        }
+
+        .message.bot pre code {
+            background: none;
+            padding: 0;
+            color: #ccc;
+        }
+
+        .typing-indicator {
+            align-self: flex-start;
+            padding: 12px 18px;
+            display: none;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #555;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        .input-container {
+            padding: 16px 24px 24px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 14px;
+            padding: 8px 12px;
+            transition: border-color 0.2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: #444;
+        }
+
+        .input-wrapper textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            resize: none;
+            max-height: 120px;
+            padding: 4px 0;
+            line-height: 1.5;
+        }
+
+        .input-wrapper textarea::placeholder { color: #444; }
+
+        .input-wrapper button {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+            color: #000;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-wrapper button:hover { background: #ccc; }
+        .input-wrapper button:disabled { background: #222; color: #555; cursor: not-allowed; }
+
+        .file-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #555;
+            font-size: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .file-btn:hover {
+            background: #1a1a1a;
+            color: #aaa;
+        }
+
+        .file-preview {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #0a0a0a;
+            border: 1px solid #222;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .file-preview img {
+            height: 36px;
+            width: 36px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .file-preview .name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-preview .remove {
+            color: #555;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 14px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .file-preview .remove:hover { color: #ff4444; }
+
+        .error-msg {
+            color: #ff4444;
+            font-size: 12px;
+            text-align: center;
+            padding: 8px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 99;
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-overlay.show {
+                display: block;
+            }
+            .menu-btn {
+                display: flex;
+            }
+            .chat-area { padding: 56px 16px 0; }
+            .input-container { padding: 12px 16px 16px; }
+            .message { max-width: 92%; font-size: 15px; }
+            .auth-screen { width: 100%; padding: 24px 16px; }
+            .auth-box { padding: 20px; }
+            .main { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div class="auth-screen" id="authScreen">
+    <div style="text-align:center">
+        <h1>Pixel<span>Chat.ai</span></h1>
+        <div class="sub">YAPAY ZEKA ASİSTANI</div>
+    </div>
+    <div class="auth-box">
+        <div class="tab" id="authTabs">
+            <button class="active" onclick="switchAuth('login')">Giriş</button>
+            <button onclick="switchAuth('register')">Kayıt</button>
+        </div>
+        <div class="auth-error" id="authError"></div>
+        <form id="authForm" onsubmit="return handleAuth(event)">
+            <input type="text" id="authUsername" placeholder="Kullanıcı adı" autocomplete="username" required>
+            <input type="password" id="authPassword" placeholder="Şifre" autocomplete="current-password" required>
+            <button type="submit" id="authSubmitBtn">Giriş Yap</button>
+        </form>
+        <div class="auth-divider">VEYA</div>
+        <button class="google-btn" onclick="window.location.href='/api/auth/google'">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3c-2.6 7-9.2 12-17.3 12-10 0-18-8-18-18s8-18 18-18c4.6 0 8.8 1.7 12 4.5l5.7-5.7C31.6 1.4 28 0 24 0 10.7 0 0 10.7 0 24s10.7 24 24 24c11.5 0 21.5-8.1 23.7-19H43.6z"/><path fill="#FF3D00" d="M2.6 14.7l6.4 4.7c1.9-5.7 7.2-9.9 13.6-10.7 4.2-.5 8.3 1 11.5 3.7l5.7-5.7C34.6 3.1 29.5 1 24 1 15.1 1 7.9 6.4 3.9 14.2l-1.3.5z"/><path fill="#4CAF50" d="M24 43c5.9 0 11.4-2.1 15.5-5.9l-7.5-6.3c-3.2 2.2-7 3.7-11.3 3.7-6.8 0-12.6-4.4-14.7-10.6l-6.6 5.1C4.8 37 12.7 43 24 43z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-1.3 3.4-3.7 6.3-6.8 8l7.5 6.3c5.3-4.8 8.4-12 8.4-19.7 0-2-.2-4-.6-5.9z"/></svg>
+            Google ile Giriş Yap
+        </button>
+    </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="top">
+                <h2>Pixel<span>Chat.ai</span></h2>
+            </div>
+            <div class="user-info">
+                <span class="name" id="userNameDisplay"></span>
+                <button class="logout" onclick="logout()">Çıkış</button>
+            </div>
+            <button class="new-chat-btn" onclick="newChat()">✦ Yeni Sohbet</button>
+        </div>
+        <div class="conv-list" id="convList"></div>
+    </div>
+
+    <div class="main">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <div class="chat-area" id="chatArea"></div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <span></span><span></span><span></span>
+        </div>
+
+        <div class="input-container">
+            <div class="error-msg" id="errorMsg"></div>
+            <div class="file-preview" id="filePreview">
+                <img id="filePreviewImg" src="">
+                <span class="name" id="filePreviewName"></span>
+                <button class="remove" onclick="removeFile()">✕</button>
+            </div>
+            <div class="input-wrapper">
+                <button class="file-btn" id="fileBtn" title="Dosya ekle">+</button>
+                <input type="file" id="fileInput" accept="image/*,.pdf,.txt,.doc,.docx" style="display:none">
+                <textarea id="userInput" rows="1" placeholder="Mesajınızı yazın..." maxlength="4000"></textarea>
+                <button id="sendBtn">➤</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // State
+    let token = localStorage.getItem('pixelchat_token');
+    let currentConvId = null;
+    let messages = [];
+    let selectedFile = null;
+
+    const chatArea = document.getElementById('chatArea');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const typingIndicator = document.getElementById('typingIndicator');
+    const errorMsg = document.getElementById('errorMsg');
+    const fileBtn = document.getElementById('fileBtn');
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const filePreviewImg = document.getElementById('filePreviewImg');
+    const filePreviewName = document.getElementById('filePreviewName');
+    const authScreen = document.getElementById('authScreen');
+    const app = document.getElementById('app');
+    const authError = document.getElementById('authError');
+    const authForm = document.getElementById('authForm');
+    const authUsername = document.getElementById('authUsername');
+    const authPassword = document.getElementById('authPassword');
+    const authSubmitBtn = document.getElementById('authSubmitBtn');
+    const convList = document.getElementById('convList');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+
+    let authMode = 'login';
+
+    function switchAuth(mode) {
+        authMode = mode;
+        document.querySelectorAll('#authTabs button').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        authSubmitBtn.textContent = mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol';
+        authError.style.display = 'none';
+    }
+
+    async function handleAuth(e) {
+        e.preventDefault();
+        const username = authUsername.value.trim();
+        const password = authPassword.value;
+
+        authError.style.display = 'none';
+        authSubmitBtn.disabled = true;
+        authSubmitBtn.textContent = 'İşleniyor...';
+
+        try {
+            const res = await fetch(`/api/${authMode}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+
+            if (authMode === 'login') {
+                token = data.token;
+                localStorage.setItem('pixelchat_token', token);
+                localStorage.setItem('pixelchat_username', data.username);
+                if (data.role) localStorage.setItem('pixelchat_role', data.role);
+                enterApp();
+            } else {
+                authMode = 'login';
+                document.querySelectorAll('#authTabs button').forEach((b,i) => b.classList.toggle('active',i===0));
+                authSubmitBtn.textContent = 'Giriş Yap';
+                authError.textContent = 'Kayıt başarılı! Şimdi giriş yapabilirsiniz.';
+                authError.style.color = '#4caf50';
+                authError.style.display = 'block';
+            }
+        } catch (err) {
+            authError.style.color = '#ff4444';
+            authError.textContent = err.message;
+            authError.style.display = 'block';
+        } finally {
+            authSubmitBtn.disabled = false;
+            authSubmitBtn.textContent = authMode === 'login' ? 'Giriş Yap' : 'Kayıt Ol';
+        }
+    }
+
+    function getHeaders() {
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        };
+    }
+
+    async function enterApp() {
+        authScreen.style.display = 'none';
+        app.style.display = 'flex';
+        userNameDisplay.textContent = localStorage.getItem('pixelchat_username') || 'Kullanıcı';
+        if (localStorage.getItem('pixelchat_role') === 'admin') {
+            userNameDisplay.innerHTML = 'OnePixel 👑';
+        }
+        await loadConversations();
+        if (document.querySelectorAll('.conv-item').length === 0) {
+            await newChat();
+        }
+    }
+
+    function logout() {
+        token = null;
+        localStorage.removeItem('pixelchat_token');
+        localStorage.removeItem('pixelchat_username');
+        localStorage.removeItem('pixelchat_role');
+        app.style.display = 'none';
+        authScreen.style.display = 'flex';
+        authUsername.value = '';
+        authPassword.value = '';
+        currentConvId = null;
+    }
+
+    async function loadConversations() {
+        try {
+            const res = await fetch('/api/conversations', { headers: getHeaders() });
+            if (!res.ok) throw new Error();
+            const list = await res.json();
+            convList.innerHTML = '';
+            for (const c of list) {
+                const div = document.createElement('div');
+                div.className = `conv-item${c.id === currentConvId ? ' active' : ''}`;
+                div.innerHTML = `
+                    <span class="title">${escapeHtml(c.title || 'Sohbet')}</span>
+                    <button class="del" onclick="event.stopPropagation(); deleteConv(${c.id})">✕</button>
+                `;
+                div.onclick = () => loadConv(c.id);
+                convList.appendChild(div);
+            }
+        } catch { }
+    }
+
+    async function loadConv(id) {
+        try {
+            const res = await fetch(`/api/conversations/${id}`, { headers: getHeaders() });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            currentConvId = id;
+            messages = data.messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', text: m.content }));
+            renderMessages(data.messages);
+            document.querySelectorAll('.conv-item').forEach(el => el.classList.toggle('active', el.dataset?.id == id));
+            document.querySelector(`.conv-item:nth-child(${document.querySelectorAll('.conv-item').length > 0 ? 1 : 0})`)?.classList.remove('active');
+            document.querySelectorAll('.conv-item').forEach(el => {
+                el.classList.toggle('active', parseInt(el.dataset?.id || el.querySelector('.del')?.onclick?.toString().match(/\d+/)?.[0]) === id);
+            });
+            updateActiveClass();
+        } catch { }
+    }
+
+    function updateActiveClass() {
+        document.querySelectorAll('.conv-item').forEach(el => {
+            const btn = el.querySelector('.del');
+            const id = btn?.getAttribute('onclick')?.match(/\d+/)?.[0];
+            el.classList.toggle('active', parseInt(id) === currentConvId);
+        });
+    }
+
+    async function newChat() {
+        if (window.innerWidth <= 768) toggleSidebar();
+        try {
+            const res = await fetch('/api/conversations', {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({}),
+            });
+            const data = await res.json();
+            currentConvId = data.id;
+            messages = [];
+            chatArea.innerHTML = `
+                <div class="message bot">
+                    <div class="bot-label">◆ PixelChat</div>
+                    Merhaba! Ben PixelChat, yapay zeka asistanınız. Size nasıl yardımcı olabilirim?
+                </div>
+            `;
+            errorMsg.style.display = 'none';
+            await loadConversations();
+        } catch { }
+    }
+
+    async function deleteConv(id) {
+        try {
+            await fetch(`/api/conversations/${id}`, { method: 'DELETE', headers: getHeaders() });
+            if (id === currentConvId) {
+                currentConvId = null;
+                chatArea.innerHTML = '';
+                messages = [];
+            }
+            await loadConversations();
+        } catch { }
+    }
+
+    function renderMessages(msgList) {
+        chatArea.innerHTML = '';
+        for (const m of msgList) {
+            addMessage(m.content, m.role === 'assistant' ? 'bot' : 'user');
+        }
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function addMessage(text, sender) {
+        const msg = document.createElement('div');
+        msg.className = `message ${sender}`;
+        if (sender === 'bot') {
+            const label = document.createElement('div');
+            label.className = 'bot-label';
+            label.textContent = '◆ PixelChat';
+            msg.appendChild(label);
+            const content = document.createElement('div');
+            content.innerHTML = formatMessage(text);
+            msg.appendChild(content);
+        } else {
+            msg.textContent = text;
+        }
+        chatArea.appendChild(msg);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function formatMessage(text) {
+        text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        text = text.replace(/`{3}([\s\S]*?)`{3}/g, '<pre><code>$1</code></pre>');
+        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+        text = text.replace(/\n/g, '<br>');
+        return text;
+    }
+
+    function escapeHtml(t) {
+        const d = document.createElement('div');
+        d.textContent = t;
+        return d.innerHTML;
+    }
+
+    function showTyping() {
+        typingIndicator.style.display = 'block';
+        chatArea.appendChild(typingIndicator);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function hideTyping() { typingIndicator.style.display = 'none'; }
+
+    function showError(msg) {
+        errorMsg.textContent = msg;
+        errorMsg.style.display = 'block';
+        setTimeout(() => { errorMsg.style.display = 'none'; }, 4000);
+    }
+
+    function setLoading(state) {
+        sendBtn.disabled = state;
+        userInput.disabled = state;
+    }
+
+    async function sendToBot(text) {
+        if (!currentConvId) await newChat();
+        showTyping();
+        setLoading(true);
+
+        try {
+            const body = { conversationId: currentConvId, message: text };
+            if (selectedFile) {
+                body.file = { data: selectedFile.data, mime: selectedFile.mime, name: selectedFile.name };
+            }
+
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify(body),
+            });
+
+            if (res.status === 401) {
+                logout();
+                return;
+            }
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+
+            messages.push({ role: 'user', text: text || '[Dosya]' });
+            messages.push({ role: 'model', text: data.reply });
+            addMessage(data.reply, 'bot');
+            await loadConversations();
+        } catch (err) {
+            showError(err.message || 'Hata oluştu.');
+        } finally {
+            hideTyping();
+            setLoading(false);
+            userInput.focus();
+        }
+    }
+
+    function handleSend() {
+        const text = userInput.value.trim();
+        if ((!text && !selectedFile) || sendBtn.disabled) return;
+        const displayText = text || '[Dosya]';
+        addMessage(displayText, 'user');
+        userInput.value = '';
+        userInput.style.height = 'auto';
+        sendToBot(text);
+        removeFile();
+    }
+
+    // File handling
+    fileBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const data = ev.target.result.split(',')[1];
+            selectedFile = { data, mime: file.type, name: file.name };
+            filePreviewName.textContent = file.name;
+            if (file.type.startsWith('image/')) {
+                filePreviewImg.src = ev.target.result;
+                filePreviewImg.style.display = 'block';
+            } else {
+                filePreviewImg.style.display = 'none';
+            }
+            filePreview.style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function removeFile() {
+        selectedFile = null;
+        filePreview.style.display = 'none';
+        fileInput.value = '';
+    }
+
+    // URL'den Google OAuth token'ını al
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    const urlUsername = params.get('username');
+    const urlRole = params.get('role');
+
+    if (urlToken) {
+        token = urlToken;
+        localStorage.setItem('pixelchat_token', token);
+        localStorage.setItem('pixelchat_username', urlUsername || 'Kullanıcı');
+        if (urlRole) localStorage.setItem('pixelchat_role', urlRole);
+        // URL'yi temizle
+        window.history.replaceState({}, document.title, '/');
+    }
+
+    // Auto-init
+    if (token) {
+        enterApp();
+    }
+
+    userInput.addEventListener('input', () => {
+        userInput.style.height = 'auto';
+        userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+    });
+
+    userInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+    });
+
+    sendBtn.addEventListener('click', handleSend);
+
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const menuBtn = document.getElementById('menuBtn');
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        sidebarOverlay.classList.toggle('show');
+        document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+    }
+
+    menuBtn?.addEventListener('click', toggleSidebar);
+    sidebarOverlay?.addEventListener('click', toggleSidebar);
+
+    // Mobilde sidebar'dan konuşma seçince kapat
+    document.getElementById('convList')?.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && e.target.closest('.conv-item')) {
+            toggleSidebar();
+        }
+    });
+</script>
+</body>
+</html>
