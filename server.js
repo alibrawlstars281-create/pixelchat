@@ -194,7 +194,7 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
 
     groqMessages.push({ role: 'user', content: userContent });
 
-    const modelName = hasFile ? 'llama-3.2-90b-vision-preview' : 'llama-3.3-70b-versatile';
+    const modelName = hasFile ? 'llama-3.2-11b-vision-preview' : 'llama-3.3-70b-versatile';
 
     const completion = await groq.chat.completions.create({
       model: modelName,
