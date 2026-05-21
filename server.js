@@ -101,10 +101,8 @@ app.get('/api/auth/google/callback',
   }
 );
 
-const systemPrompt =
-  'Sen PixelChat adlı bir yapay zeka asistanısın. Siyah-beyaz temalı, minimalist bir sohbet botusun. ' +
-  'Kullanıcılara kısa, net ve yardımsever yanıtlar verirsin. Türkçe konuşursun. ' +
-  'Kendinden emin, sakin ve profesyonel bir tonda konuş.';
+const fs = require('fs');
+const systemPrompt = fs.readFileSync(path.join(__dirname, 'system-prompt.txt'), 'utf8').trim();
 
 function authMiddleware(req, res, next) {
   const header = req.headers.authorization;
@@ -221,6 +219,14 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
       : 'Bir hata oluştu. Lütfen tekrar deneyin.';
     res.status(500).json({ error: msg });
   }
+});
+
+app.get('/api/system-prompt', (req, res) => {
+  res.json({ systemPrompt });
+});
+
+app.get('/api/system-prompt.txt', (req, res) => {
+  res.type('text').send(systemPrompt);
 });
 
 app.get('/api/health', (req, res) => {
